@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
+import 'screens/main_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -24,13 +26,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'TravelMate',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.lightTheme,
         home: const AuthWrapper(),
       ),
     );
@@ -55,9 +51,9 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // If user is authenticated, show home screen
+        // If user is authenticated, show main screen with bottom navigation
         if (authProvider.isAuthenticated) {
-          return const HomeScreenPlaceholder();
+          return const MainScreen();
         }
 
         // Otherwise, show login screen
@@ -67,57 +63,4 @@ class AuthWrapper extends StatelessWidget {
   }
 }
 
-/// Placeholder for the home screen (will be replaced later)
-class HomeScreenPlaceholder extends StatelessWidget {
-  const HomeScreenPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TravelMate'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authProvider.signOut();
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.check_circle,
-              size: 100,
-              color: Colors.green,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'You are logged in!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Welcome, ${authProvider.userEmail ?? "User"}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 48),
-            const Text(
-              'Home screen UI coming soon...',
-              style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
