@@ -228,6 +228,11 @@ class _FlightsScreenState extends State<FlightsScreen> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
+              if (controller == _originController) {
+                return 'Origin city or airport is required';
+              } else if (controller == _destinationController) {
+                return 'Destination city or airport is required';
+              }
               return 'Please enter $label';
             }
             return null;
