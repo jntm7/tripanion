@@ -72,7 +72,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
             _buildTextField(
               controller: _originController,
               label: 'From',
-              hint: 'Origin city or airport',
+              hint: 'Origin City or Airport',
               icon: Icons.flight_takeoff,
             ),
 
@@ -81,7 +81,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
             _buildTextField(
               controller: _destinationController,
               label: 'To',
-              hint: 'Destination city or airport',
+              hint: 'Destination City or Airport',
               icon: Icons.flight_land,
             ),
 
