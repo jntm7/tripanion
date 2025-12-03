@@ -191,16 +191,12 @@ class HomeScreen extends StatelessWidget {
   /// Popular destinations horizontal scroll
   Widget _buildPopularDestinations(BuildContext context) {
     final destinations = [
-      {'name': 'Tokyo', 'country': 'Japan', 'emoji': '🇯🇵'},
-      {'name': 'Paris', 'country': 'France', 'emoji': '🇫🇷'},
-      {'name': 'New York', 'country': 'USA', 'emoji': '🇺🇸'},
-      {'name': 'London', 'country': 'UK', 'emoji': '🇬🇧'},
-      {'name': 'Dubai', 'country': 'UAE', 'emoji': '🇦🇪'},
-      {'name': 'Singapore', 'country': 'Singapore', 'emoji': '🇸🇬'},
-      {'name': 'Sydney', 'country': 'Australia', 'emoji': '🇦🇺'},
-      {'name': 'Rome', 'country': 'Italy', 'emoji': '🇮🇹'},
-      {'name': 'Barcelona', 'country': 'Spain', 'emoji': '🇪🇸'},
-      {'name': 'Bangkok', 'country': 'Thailand', 'emoji': '🇹🇭'},
+      {'name': 'Tokyo', 'country': 'Japan', 'image': 'tokyo.jpg'},
+      {'name': 'Paris', 'country': 'France', 'image': 'paris.jpg'},
+      {'name': 'New York', 'country': 'USA', 'image': 'new_york.jpg'},
+      {'name': 'London', 'country': 'UK', 'image': 'london.jpg'},
+      {'name': 'Sydney', 'country': 'Australia', 'image': 'sydney.jpg'},
+      {'name': 'Shanghai', 'country': 'China', 'image': 'shanghai.jpg'},
     ];
 
     return Column(
@@ -219,7 +215,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 120,
+          height: 140,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -234,7 +230,7 @@ class HomeScreen extends StatelessWidget {
                   context: context,
                   name: destination['name']!,
                   country: destination['country']!,
-                  emoji: destination['emoji']!,
+                  image: destination['image']!,
                 ),
               );
             },
@@ -249,7 +245,7 @@ class HomeScreen extends StatelessWidget {
     required BuildContext context,
     required String name,
     required String country,
-    required String emoji,
+    required String image,
   }) {
     return InkWell(
       onTap: () {
@@ -261,36 +257,53 @@ class HomeScreen extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         width: 140,
+        height: 140,
         decoration: BoxDecoration(
-          color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.lightGrey, width: 1),
+          image: DecorationImage(
+            image: AssetImage('assets/images/destinations/$image'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.15),
+              BlendMode.darken,
+            ),
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              emoji,
-              style: const TextStyle(fontSize: 40),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black.withOpacity(0.5),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkGrey,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              country,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.mediumGrey,
+              const SizedBox(height: 2),
+              Text(
+                country,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
