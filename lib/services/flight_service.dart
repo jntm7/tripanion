@@ -5,7 +5,7 @@ import '../models/flight.dart';
 class FlightService {
   static const String _baseUrl = 'https://test.api.amadeus.com';
   static const String _tokenUrl = '/v1/security/oauth2/token';
-  static const String _flightURL = '/v2/shopping/flight-destinations';
+  static const String _flightURL = '/v2/shopping/flight-offers';
 
   final String _apiKey;
   final String _apiSecret;
