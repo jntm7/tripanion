@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 
+// AuthProvider manages the user authentication state across the app
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
 
