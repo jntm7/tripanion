@@ -1,36 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../services/currency_service.dart';
 
-// we use Stateless widget because there's no internal state to manage
-// all the data on the home screen comes from other providers (i.e. AuthProvider) or it is static content
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final Function(int)? onNavigateToTab;
 
   const HomeScreen({super.key, this.onNavigateToTab});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _selectedCurrency = 'CAD';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrencyPreference();
+  }
+
+  // load saved currency preference
+  Future<void> _loadCurrencyPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedCurrency = prefs.getString('preferred_currency') ?? 'USD';
+    });
+  }
+
+  // save currency preference
+  Future<void> _saveCurrency(String currency) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('preferred_currency', currency);
+    setState(() => _selectedCurrency = currency);
+  }
+
   // build method
   @override
   Widget build(BuildContext context) {
+    // get the user name from AuthProvider
     final authProvider = Provider.of<AuthProvider>(context);
     final userName = authProvider.userEmail?.split('@')[0] ?? 'Traveler';
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildWelcomeSection(userName),
-              const SizedBox(height: 24),
-              _buildQuickActionCards(context),
-              const SizedBox(height: 32),
-              _buildPopularDestinations(context),
-              const SizedBox(height: 32),
-              _buildRecentlyViewed(context),
-              const SizedBox(height: 24),
-            ],
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.primaryOrange.withValues(alpha: 0.08),
+                AppColors.secondaryOrange.withValues(alpha: 0.03),
+              ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildWelcomeSection(userName),
+                const SizedBox(height: 24),
+                _buildQuickActionCards(context),
+                const SizedBox(height: 24),
+                _buildPopularDestinations(context),
+                const SizedBox(height: 24),
+                _buildSettings(),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -42,16 +84,6 @@ class HomeScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primaryOrange.withValues(alpha: 0.1),
-            AppColors.secondaryOrange.withValues(alpha: 0.05),
-          ],
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -60,7 +92,7 @@ class HomeScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkGrey,
+              color: AppColors.primaryOrange,
             ),
           ),
           const SizedBox(height: 8),
@@ -68,7 +100,7 @@ class HomeScreen extends StatelessWidget {
             'Where to next? ✈️',
             style: TextStyle(
               fontSize: 16,
-              color: AppColors.mediumGrey,
+              color: AppColors.darkGrey,
             ),
           ),
         ],
@@ -92,7 +124,7 @@ class HomeScreen extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [AppColors.primaryOrange, AppColors.secondaryOrange],
               ),
-              onTap: () => onNavigateToTab?.call(0),
+              onTap: () => widget.onNavigateToTab?.call(0),
             ),
           ),
           const SizedBox(width: 16),
@@ -109,7 +141,7 @@ class HomeScreen extends StatelessWidget {
                   AppColors.secondaryOrange.withValues(alpha: 0.8),
                 ],
               ),
-              onTap: () => onNavigateToTab?.call(1),
+              onTap: () => widget.onNavigateToTab?.call(1),
             ),
           ),
         ],
@@ -288,62 +320,131 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // recently viewed items
-  Widget _buildRecentlyViewed(BuildContext context) {
-    final hasRecentItems = false;
-
+  // settings section
+  Widget _buildSettings() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Recently Viewed',
+            'Settings',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.darkGrey,
             ),
           ),
-          const SizedBox(height: 16),
-          if (!hasRecentItems)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.lightGrey.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.lightGrey,
-                  width: 1,
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.mediumGrey.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              child: const Column(
-                children: [
-                  Icon(
-                    Icons.history,
-                    size: 48,
-                    color: AppColors.mediumGrey,
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'No recent views yet',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.mediumGrey,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Start searching for flights and hotels!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.mediumGrey,
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
+            child: Column(
+              children: [
+                // currency selector
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.attach_money,
+                      color: AppColors.primaryOrange,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Currency',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkGrey,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.lightGrey),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedCurrency,
+                          borderRadius: BorderRadius.circular(12),
+                          elevation: 8,
+                          dropdownColor: AppColors.white,
+                          items: CurrencyService.supportedCurrencies
+                              .map((currency) => DropdownMenuItem(
+                                    value: currency,
+                                    child: Text(
+                                      currency,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              _saveCurrency(value);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
+                // dark mode toggle
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.dark_mode,
+                      color: AppColors.primaryOrange,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Dark Mode',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkGrey,
+                        ),
+                      ),
+                    ),
+                    // Dark Mode Switch using ThemeProvider
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, child) {
+                        return Switch(
+                          value: themeProvider.isDarkMode,
+                          activeThumbColor: AppColors.primaryOrange,
+                          onChanged: (value) {
+                            themeProvider.setTheme(value);
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
