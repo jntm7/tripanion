@@ -104,16 +104,15 @@ class CurrencyService {
     }
 
     final rates = await getExchangeRates();
-    final rate = rates[targetCurrency];
+    final usdRate = rates['USD'];
+    final targetRate = rates[targetCurrency];
 
-    if (rate == null) {
+    if (usdRate == null || targetRate == null) {
       throw Exception('Currency $targetCurrency not supported');
     }
 
-    // fixer.io uses EUR as base, so we need to convert USD -> EUR -> target
-    final eurRate = rates['EUR'] ?? 1.0;
-    final usdToEur = amountUSD / eurRate;
-    return usdToEur * rate;
+    // fixer.io uses EUR as base currency, we convert it to USD
+    return (amountUSD / usdRate) * targetRate;
   }
 
   // format price with currency symbol
