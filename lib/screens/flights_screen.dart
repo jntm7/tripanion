@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../config/api_config.dart';
+import '../services/flight_service.dart';
 import 'flight_results_screen.dart';
 
 class FlightsScreen extends StatefulWidget {
@@ -11,17 +13,28 @@ class FlightsScreen extends StatefulWidget {
 
 class _FlightsScreenState extends State<FlightsScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _originController = TextEditingController();
   final _destinationController = TextEditingController();
-
   bool _isRoundTrip = true;
   DateTime? _departureDate;
   DateTime? _returnDate;
   int _passengers = 1;
   String _travelClass = 'ECONOMY';
   bool _isSearching = false;
+  
+  // initialize flight service
+  late final FlightService _flightService;
 
+  @override
+  void initState() {
+    super.initState();
+    _flightService = FlightService(
+      apiKey: ApiConfig.amadeusApiKey,
+      apiSecret: ApiConfig.amadeusApiSecret,
+    );
+  }
+
+  // dispose controllers
   @override
   void dispose() {
     _originController.dispose();
@@ -29,6 +42,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
     super.dispose();
   }
 
+  // build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +68,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.mediumGrey.withOpacity(0.1),
+            color: AppColors.mediumGrey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -173,6 +187,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
     );
   }
 
+  // trip type button
   Widget _buildTripTypeButton({
     required String label,
     required bool isSelected,
@@ -186,7 +201,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primaryOrange
-              : AppColors.lightGrey.withOpacity(0.3),
+              : AppColors.lightGrey.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -201,7 +216,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
     );
   }
 
-  // text field
+  // origin & destination text fields
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -320,9 +335,9 @@ class _FlightsScreenState extends State<FlightsScreen> {
                   child: DropdownButton<int>(
                     value: _passengers,
                     items: List.generate(9, (index) => index + 1)
-                        .map((num) => DropdownMenuItem(
-                              value: num,
-                              child: Text('$num'),
+                        .map((number) => DropdownMenuItem(
+                              value: number,
+                              child: Text('$number'),
                             ))
                         .toList(),
                     onChanged: (value) {
@@ -418,7 +433,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
   }
 
   // search handler
-  void _handleSearch() {
+  Future<void> _handleSearch() async {
     if (_formKey.currentState!.validate()) {
       if (_departureDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -440,20 +455,52 @@ class _FlightsScreenState extends State<FlightsScreen> {
         return;
       }
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => FlightResultsScreen(
-            origin: _originController.text,
-            destination: _destinationController.text,
-            departureDate: _departureDate!,
-            returnDate: _returnDate,
-            passengers: _passengers,
-            travelClass: _travelClass,
-            isRoundTrip: _isRoundTrip,
+      setState(() => _isSearching = true);
+
+      // perform the flight search here
+      try {
+        final flights = await _flightService.searchFlights(
+          origin: _originController.text.trim().toUpperCase(),
+          destination: _destinationController.text.trim().toUpperCase(),
+          departureDate: _departureDate!,
+          returnDate: _isRoundTrip ? _returnDate : null,
+          adults: _passengers,
+          travelClass: _travelClass,
+        );
+
+        if (!mounted) return;
+
+        // navigate to results screen with results
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FlightResultsScreen(
+              origin: _originController.text.trim().toUpperCase(),
+              destination: _destinationController.text.trim().toUpperCase(),
+              departureDate: _departureDate!,
+              returnDate: _returnDate,
+              passengers: _passengers,
+              travelClass: _travelClass,
+              isRoundTrip: _isRoundTrip,
+              flights: flights,
+            ),
           ),
-        ),
-      );
+        );
+      } 
+      catch (e) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error searching flights: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isSearching = false);
+        }
+      }
     }
   }
 }
