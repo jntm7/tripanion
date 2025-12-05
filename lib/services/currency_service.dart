@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrencyService {
-  static const String _baseUrl = 'https://api.fixer.io/latest';
+  static const String _baseUrl = 'http://data.fixer.io/api/latest';
   static const String _cacheKey = 'exchange_rates';
   static const String _cacheTimeKey = 'exchange_rates_time';
   static const Duration _cacheDuration = Duration(hours: 24);
@@ -27,7 +27,7 @@ class CurrencyService {
   // currency symbols
   static const Map<String, String> currencySymbols = {
     'USD': '\$',
-    'CAD': 'CA\$',
+    'CAD': '\$',
     'EUR': '€',
     'GBP': '£',
     'CNY': '¥',
@@ -59,8 +59,14 @@ class CurrencyService {
 
     // fetch from API
     try {
+      // request other currencies against EUR
+      final symbols = supportedCurrencies.where((c) => c != 'EUR').join(',');
+      final url = '$_baseUrl?access_key=$_apiKey&symbols=$symbols';
+
+      print('Fetching rates from: $url');
+
       final response = await http.get(
-        Uri.parse('$_baseUrl?access_key=$_apiKey&symbols=${supportedCurrencies.join(',')}'),
+        Uri.parse(url),
       );
 
       if (response.statusCode == 200) {
@@ -72,6 +78,9 @@ class CurrencyService {
               (key, value) => MapEntry(key.toString(), (value as num).toDouble()),
             ),
           );
+
+          // set EUR as 1.0 (base)
+          rates['EUR'] = 1.0;
 
           // cache the rates
           _cachedRates = rates;
@@ -89,7 +98,7 @@ class CurrencyService {
         throw Exception('Failed to fetch rates: ${response.statusCode}');
       }
     } catch (e) {
-      // if fetch fails and we have cached data, use it even if expired
+      // if fetch fails, return cached rates
       if (_cachedRates != null) {
         return _cachedRates!;
       }
@@ -111,7 +120,7 @@ class CurrencyService {
       throw Exception('Currency $targetCurrency not supported');
     }
 
-    // fixer.io uses EUR as base currency, we convert it to USD
+    // fixer.io uses EUR as base currency, we convert it to target currency
     return (amountUSD / usdRate) * targetRate;
   }
 
