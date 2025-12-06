@@ -21,6 +21,10 @@ class Airport {
     );
   }
 
+  // getters for city and country needed for the hotel screen
+  String get city => municipality;
+  String get country => isoCountry;
+
   // format display name
   String get displayName => '$municipality ($iataCode) - $isoCountry';
 
