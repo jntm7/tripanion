@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/flight.dart';
+import '../models/saved_item.dart';
 import '../utils/flight_utils.dart';
 import '../services/currency_service.dart';
 import '../config/api_config.dart';
+import '../providers/saved_items_provider.dart';
 
 class FlightResultsScreen extends StatefulWidget {
   final String origin;
@@ -284,6 +287,34 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(width: 8),
+                  Consumer<SavedItemsProvider>(
+                    builder: (context, savedItemsProvider, child) {
+                      final isSaved = savedItemsProvider.isSaved(flight.id);
+                      return IconButton(
+                        onPressed: () {
+                          final savedItem = SavedItem.fromFlight(
+                            id: flight.id,
+                            origin: widget.origin,
+                            destination: widget.destination,
+                            departureDate: widget.departureDate,
+                            returnDate: widget.returnDate,
+                            price: flight.price,
+                            currency: _selectedCurrency,
+                            airline: getAirlineName(firstSegment.carrierCode),
+                            flightNumber: firstSegment.flightNumber,
+                            travelClass: widget.travelClass,
+                            passengers: widget.passengers,
+                          );
+                          savedItemsProvider.toggleSavedItem(savedItem);
+                        },
+                        icon: Icon(
+                          isSaved ? Icons.bookmark : Icons.bookmark_border,
+                          color: isSaved ? AppColors.primaryOrange : (isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
