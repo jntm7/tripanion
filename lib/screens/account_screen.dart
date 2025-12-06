@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 
+// AccountScreen shows account info and actions like logout/change password/delete account
+// we use a stateless widget here since account information is fetched from AuthProvider
+// the account screen doesn't need to maintain its own state
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
