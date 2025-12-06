@@ -63,7 +63,7 @@ class CurrencyService {
       final symbols = supportedCurrencies.where((c) => c != 'EUR').join(',');
       final url = '$_baseUrl?access_key=$_apiKey&symbols=$symbols';
 
-      print('Fetching rates from: $url');
+      //print('Fetching rates from: $url');
 
       final response = await http.get(
         Uri.parse(url),

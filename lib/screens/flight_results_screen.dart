@@ -35,8 +35,6 @@ class FlightResultsScreen extends StatefulWidget {
 class _FlightResultsScreenState extends State<FlightResultsScreen> {
   late CurrencyService _currencyService;
   String _selectedCurrency = 'USD';
-  bool _isLoadingCurrency = true;
-  Map<String, double> _exchangeRates = {};
   double _conversionRate = 1.0;
 
   @override
@@ -61,14 +59,13 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
           _conversionRate = targetRate / usdRate;
         }
       } catch (e) {
-        print('Failed to load exchange rates: $e');
+        //print('Failed to load exchange rates: $e');
       }
     }
 
     if (mounted) {
       setState(() {
         _selectedCurrency = savedCurrency;
-        _isLoadingCurrency = false;
       });
     }
   }
