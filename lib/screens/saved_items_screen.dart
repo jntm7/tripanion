@@ -130,25 +130,27 @@ class SavedItemsScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${item.origin} → ${item.destination}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        timeAgo,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
-                        ),
-                      ),
-                    ],
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                    item.type == SavedItemType.flight
+                      ? '${item.origin} → ${item.destination}'
+                      : item.hotelName ?? 'Unknown Location',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
+                    ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                    timeAgo,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
+                    ),
+                    ),
+                  ],
                   ),
                 ),
                 IconButton(
@@ -230,15 +232,7 @@ class SavedItemsScreen extends StatelessWidget {
                     child: _buildDetailRow(
                       context,
                       icon: Icons.nights_stay,
-                      label: '${item.nights} night${item.nights! > 1 ? 's' : ''}',
-                      isDark: isDark,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildDetailRow(
-                      context,
-                      icon: Icons.meeting_room,
-                      label: '${item.rooms} room${item.rooms! > 1 ? 's' : ''}',
+                      label: '${item.nights} night${item.nights! > 1 ? 's' : ''}, ${item.rooms} room${item.rooms! > 1 ? 's' : ''}',
                       isDark: isDark,
                     ),
                   ),
