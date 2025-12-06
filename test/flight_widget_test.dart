@@ -7,22 +7,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('FlightsScreen Widget Tests', () {
-    // test data
-    final testAirports = [
-      Airport(
-        iataCode: 'YEG',
-        name: 'Edmonton International Airport',
-        municipality: 'Edmonton',
-        isoCountry: 'CA',
-      ),
-      Airport(
-        iataCode: 'LAX',
-        name: 'Los Angeles International Airport',
-        municipality: 'Los Angeles',
-        isoCountry: 'US',
-      ),
-    ];
-
     // Test for input fields and search button properly rendered
     testWidgets('Renders all input fields and search button', (WidgetTester tester) async {
       await tester.pumpWidget(
