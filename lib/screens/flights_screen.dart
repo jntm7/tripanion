@@ -49,10 +49,17 @@ class _FlightsScreenState extends State<FlightsScreen> {
       appBar: AppBar(
         title: const Text('Flight Search'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: _buildSearchForm(),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: AppColors.primaryOrange.withValues(alpha: 0.05),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: _buildSearchForm(),
+            ),
+          ),
         ),
       ),
     );

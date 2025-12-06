@@ -15,30 +15,34 @@ class AccountScreen extends StatelessWidget {
 
     final creationDate = user?.metadata.creationTime;
     final formattedDate = creationDate != null
-        ? DateFormat('MMMM dd, yyyy').format(creationDate)
-        : 'Unknown';
+      ? DateFormat('MMMM yyyy').format(creationDate)
+      : 'Unknown';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // profile section
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.primaryOrange.withValues(alpha: 0.1),
-                    AppColors.secondaryOrange.withValues(alpha: 0.05),
-                  ],
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: AppColors.primaryOrange.withValues(alpha: 0.05),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // profile section
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primaryOrange.withValues(alpha: 0.1),
+                      AppColors.secondaryOrange.withValues(alpha: 0.05),
+                    ],
+                  ),
                 ),
-              ),
               child: Column(
                 children: [
                   Container(
@@ -74,7 +78,7 @@ class AccountScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Member since $formattedDate',
+                        'Joined in: $formattedDate',
                         style: TextStyle(
                           fontSize: 14,
                           color: isDark ? Colors.white.withValues(alpha: 0.7) : AppColors.mediumGrey,
@@ -125,7 +129,8 @@ class AccountScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
-          ],
+            ],
+          ),
         ),
       ),
     );

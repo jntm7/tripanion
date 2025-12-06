@@ -86,27 +86,36 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
       appBar: AppBar(
         title: const Text('Flight Results'),
       ),
-      body: Column(
-        children: [
-          _buildSearchSummary(),
-          Expanded(
-            child: _buildResultsList(),
-          ),
-        ],
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: AppColors.primaryOrange.withValues(alpha: 0.05),
+        child: Column(
+          children: [
+            _buildSearchSummary(),
+            Expanded(
+              child: _buildResultsList(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   // search summary
   Widget _buildSearchSummary() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: AppColors.mediumGrey.withValues(alpha: 0.1),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.3)
+                : AppColors.mediumGrey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -120,10 +129,10 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
               Expanded(
                 child: Text(
                   '${widget.origin} → ${widget.destination}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkGrey,
+                    color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
                   ),
                 ),
               ),
@@ -137,9 +146,9 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
           const SizedBox(height: 4),
           Text(
             '${_formatDate(widget.departureDate)}${widget.isRoundTrip && widget.returnDate != null ? ' - ${_formatDate(widget.returnDate!)}' : ''} • ${widget.passengers} passenger${widget.passengers > 1 ? 's' : ''} • ${_formatClass(widget.travelClass)}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.mediumGrey,
+              color: isDark ? Colors.white.withValues(alpha: 0.7) : AppColors.mediumGrey,
             ),
           ),
         ],
@@ -149,31 +158,33 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
 
   // results list
   Widget _buildResultsList() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (widget.flights.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.search_off,
               size: 64,
-              color: AppColors.mediumGrey,
+              color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.mediumGrey,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No flights found',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkGrey,
+                color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Try adjusting your search criteria',
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.mediumGrey,
+                color: isDark ? Colors.white.withValues(alpha: 0.7) : AppColors.mediumGrey,
               ),
             ),
             const SizedBox(height: 24),
@@ -201,6 +212,7 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
     final outbound = flight.itineraries.first;
     final firstSegment = outbound.firstSegment;
     final lastSegment = outbound.lastSegment;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -222,7 +234,9 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.lightGrey.withValues(alpha: 0.3),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : AppColors.lightGrey.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -238,17 +252,17 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                       children: [
                         Text(
                           getAirlineName(firstSegment.carrierCode),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.darkGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
                           ),
                         ),
                         Text(
                           firstSegment.flightNumber,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.mediumGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                           ),
                         ),
                       ],
@@ -267,9 +281,9 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                       ),
                       Text(
                         '$_selectedCurrency per person',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
-                          color: AppColors.mediumGrey,
+                          color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                         ),
                       ),
                     ],
@@ -287,26 +301,26 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                       children: [
                         Text(
                           _formatDateShort(firstSegment.departureTime),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.mediumGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           formatTime(firstSegment.departureTime),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           firstSegment.departureIataCode,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.mediumGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                           ),
                         ),
                       ],
@@ -318,9 +332,9 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                       children: [
                         Text(
                           formatDuration(outbound.duration),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.mediumGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -384,26 +398,26 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
                       children: [
                         Text(
                           _formatDateShort(lastSegment.arrivalTime),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.mediumGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           formatTime(lastSegment.arrivalTime),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           lastSegment.arrivalIataCode,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.mediumGrey,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
                           ),
                         ),
                       ],

@@ -18,7 +18,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
   int _rooms = 1;
   int _adults = 2;
   int _children = 0;
-  bool _isSearching = false;
+  final bool _isSearching = false;
 
   @override
   void dispose() {
@@ -32,10 +32,17 @@ class _HotelsScreenState extends State<HotelsScreen> {
       appBar: AppBar(
         title: const Text('Hotel Search'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: _buildSearchForm(),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: AppColors.primaryOrange.withValues(alpha: 0.05),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: _buildSearchForm(),
+            ),
+          ),
         ),
       ),
     );
@@ -43,25 +50,16 @@ class _HotelsScreenState extends State<HotelsScreen> {
 
   // search form
   Widget _buildSearchForm() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.mediumGrey.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             _buildTextField(
               controller: _locationController,
               label: 'Destination',
@@ -152,7 +150,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
                     : const Text('Search Hotels'),
               ),
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -165,15 +165,17 @@ class _HotelsScreenState extends State<HotelsScreen> {
     required String hint,
     required IconData icon,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
@@ -200,15 +202,17 @@ class _HotelsScreenState extends State<HotelsScreen> {
     required DateTime? date,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
@@ -217,8 +221,12 @@ class _HotelsScreenState extends State<HotelsScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.lightGrey),
+              color: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : AppColors.lightGrey,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -230,7 +238,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
                       ? '${date.month}/${date.day}/${date.year}'
                       : 'Select date',
                   style: TextStyle(
-                    color: date != null ? AppColors.darkGrey : AppColors.mediumGrey,
+                    color: date != null
+                        ? (isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey)
+                        : AppColors.mediumGrey,
                     fontSize: 16,
                   ),
                 ),
@@ -249,23 +259,29 @@ class _HotelsScreenState extends State<HotelsScreen> {
     required VoidCallback onIncrement,
     required VoidCallback onDecrement,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.lightGrey),
+            color: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : AppColors.lightGrey,
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -280,10 +296,10 @@ class _HotelsScreenState extends State<HotelsScreen> {
               ),
               Text(
                 '$value',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkGrey,
+                  color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
                 ),
               ),
               IconButton(
