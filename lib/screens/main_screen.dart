@@ -40,14 +40,18 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: isDark ? const Color(0xFF1E1E1E) : AppColors.white,
           boxShadow: [
             BoxShadow(
-              color: AppColors.mediumGrey.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : AppColors.mediumGrey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -89,7 +93,9 @@ class _MainScreenState extends State<MainScreen> {
                               _navItems[index].icon,
                               color: isSelected
                                   ? AppColors.primaryOrange
-                                  : AppColors.mediumGrey,
+                                  : isDark
+                                      ? const Color(0xFF808080)
+                                      : AppColors.mediumGrey,
                               size: 24,
                             ),
                             const SizedBox(height: 4),
@@ -100,7 +106,9 @@ class _MainScreenState extends State<MainScreen> {
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                                 color: isSelected
                                     ? AppColors.primaryOrange
-                                    : AppColors.mediumGrey,
+                                    : isDark
+                                        ? const Color(0xFF808080)
+                                        : AppColors.mediumGrey,
                               ),
                             ),
                           ],

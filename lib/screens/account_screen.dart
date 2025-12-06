@@ -11,6 +11,7 @@ class AccountScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final creationDate = user?.metadata.creationTime;
     final formattedDate = creationDate != null
@@ -56,27 +57,27 @@ class AccountScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     user?.email ?? 'No email',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.darkGrey,
+                      color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_today,
                         size: 14,
-                        color: AppColors.mediumGrey,
+                        color: isDark ? Colors.white.withValues(alpha: 0.7) : AppColors.mediumGrey,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Member since $formattedDate',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.mediumGrey,
+                          color: isDark ? Colors.white.withValues(alpha: 0.7) : AppColors.mediumGrey,
                         ),
                       ),
                     ],
@@ -139,6 +140,8 @@ class AccountScreen extends StatelessWidget {
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -171,15 +174,21 @@ class AccountScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: isDestructive ? AppColors.error : AppColors.darkGrey,
+                        color: isDestructive
+                            ? AppColors.error
+                            : isDark
+                                ? Colors.white.withValues(alpha: 0.95)
+                                : AppColors.darkGrey,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.mediumGrey,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : AppColors.mediumGrey,
                       ),
                     ),
                   ],
@@ -187,7 +196,9 @@ class AccountScreen extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                color: AppColors.mediumGrey,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.4)
+                    : AppColors.mediumGrey,
               ),
             ],
           ),
