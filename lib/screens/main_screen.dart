@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'flights_screen.dart';
 import 'hotels_screen.dart';
-import 'favourites_screen.dart';
+import 'saved_items_screen.dart';
 import 'account_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -20,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     const FlightsScreen(),
     const HotelsScreen(),
     HomeScreen(onNavigateToTab: _onItemTapped),
-    const FavouritesScreen(),
+    const SavedItemsScreen(),
     const AccountScreen(),
   ];
 
@@ -28,7 +28,7 @@ class _MainScreenState extends State<MainScreen> {
     NavItem(icon: Icons.flight, label: 'Flights'),
     NavItem(icon: Icons.hotel, label: 'Hotels'),
     NavItem(icon: Icons.home, label: 'Home'),
-    NavItem(icon: Icons.favorite, label: 'Saved'),
+    NavItem(icon: Icons.bookmark, label: 'Saved'),
     NavItem(icon: Icons.person, label: 'Account'),
   ];
 
@@ -63,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             child: Stack(
               children: [
-                // sliding indicator
+                // sliding indicator animation on nav items
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
