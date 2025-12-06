@@ -6,6 +6,9 @@ import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../services/currency_service.dart';
 
+// HomeScreen is the main dashboard screen
+// we don't need to manage any internal state here, so we use StatefulWidget
+// we do need state management for currency, so I used initState to load preferences
 class HomeScreen extends StatefulWidget {
   final Function(int)? onNavigateToTab;
 
@@ -64,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildWelcomeSection(userName),
-                const SizedBox(height: 24),
+                const SizedBox(height: 22),
                 _buildQuickActionCards(context),
                 const SizedBox(height: 24),
                 _buildPopularDestinations(context),
@@ -99,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             'Welcome back, $userName!\nReady for your next adventure?',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               color: Theme.of(context).brightness == Brightness.dark
             ? Colors.white.withValues(alpha: 0.9)
             : AppColors.darkGrey,
@@ -275,6 +278,10 @@ class _HomeScreenState extends State<HomeScreen> {
         width: 140,
         height: 140,
         decoration: BoxDecoration(
+          border: Border.all(
+            color: AppColors.primaryOrange,
+            width: 0.75,
+          ),
           borderRadius: BorderRadius.circular(12),
           image: DecorationImage(
             image: AssetImage('assets/images/destinations/$image'),
@@ -334,21 +341,10 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
-              ),
-            ),
-          ),
           const SizedBox(height: 12),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
                   // currency selector
@@ -357,15 +353,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Icon(
                         Icons.attach_money,
                         color: AppColors.primaryOrange,
-                        size: 22,
+                        size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Currency',
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
                           ),
                         ),
@@ -412,24 +408,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   const Divider(height: 1),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   // dark mode toggle
                   Row(
                     children: [
                       const Icon(
                         Icons.dark_mode,
                         color: AppColors.primaryOrange,
-                        size: 22,
+                        size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Dark Mode',
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
                           ),
                         ),
