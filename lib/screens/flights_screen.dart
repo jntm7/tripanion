@@ -60,25 +60,16 @@ class _FlightsScreenState extends State<FlightsScreen> {
 
   // search form
   Widget _buildSearchForm() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.mediumGrey.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             _buildTripTypeToggle(),
 
             const SizedBox(height: 20),
@@ -155,7 +146,9 @@ class _FlightsScreenState extends State<FlightsScreen> {
                     : const Text('Search Flights'),
               ),
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -193,6 +186,8 @@ class _FlightsScreenState extends State<FlightsScreen> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -201,14 +196,20 @@ class _FlightsScreenState extends State<FlightsScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primaryOrange
-              : AppColors.lightGrey.withValues(alpha: 0.3),
+              : isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : AppColors.lightGrey.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.darkGrey,
+            color: isSelected
+                ? AppColors.white
+                : isDark
+                    ? Colors.white.withValues(alpha: 0.9)
+                    : AppColors.darkGrey,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -223,15 +224,17 @@ class _FlightsScreenState extends State<FlightsScreen> {
     required String hint,
     required IconData icon,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
@@ -263,15 +266,17 @@ class _FlightsScreenState extends State<FlightsScreen> {
     required DateTime? date,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
@@ -280,8 +285,12 @@ class _FlightsScreenState extends State<FlightsScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: AppColors.lightGrey),
+              color: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : AppColors.lightGrey,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -293,7 +302,9 @@ class _FlightsScreenState extends State<FlightsScreen> {
                       ? '${date.month}/${date.day}/${date.year}'
                       : 'Select date',
                   style: TextStyle(
-                    color: date != null ? AppColors.darkGrey : AppColors.mediumGrey,
+                    color: date != null
+                        ? (isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey)
+                        : AppColors.mediumGrey,
                     fontSize: 16,
                   ),
                 ),
@@ -307,23 +318,29 @@ class _FlightsScreenState extends State<FlightsScreen> {
 
   // passenger selector
   Widget _buildPassengerSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Passengers',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.lightGrey),
+            color: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : AppColors.lightGrey,
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -334,10 +351,16 @@ class _FlightsScreenState extends State<FlightsScreen> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     value: _passengers,
+                    dropdownColor: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
                     items: List.generate(9, (index) => index + 1)
                         .map((number) => DropdownMenuItem(
                               value: number,
-                              child: Text('$number'),
+                              child: Text(
+                                '$number',
+                                style: TextStyle(
+                                  color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                                ),
+                              ),
                             ))
                         .toList(),
                     onChanged: (value) {
@@ -357,34 +380,73 @@ class _FlightsScreenState extends State<FlightsScreen> {
 
   // class selector
   Widget _buildClassSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Class',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkGrey,
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.lightGrey),
+            color: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : AppColors.lightGrey,
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _travelClass,
               isExpanded: true,
-              items: const [
-                DropdownMenuItem(value: 'ECONOMY', child: Text('Economy')),
-                DropdownMenuItem(value: 'PREMIUM_ECONOMY', child: Text('Premium')),
-                DropdownMenuItem(value: 'BUSINESS', child: Text('Business')),
-                DropdownMenuItem(value: 'FIRST', child: Text('First')),
+              dropdownColor: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+              items: [
+                DropdownMenuItem(
+                  value: 'ECONOMY',
+                  child: Text(
+                    'Economy',
+                    style: TextStyle(
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                    ),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'PREMIUM_ECONOMY',
+                  child: Text(
+                    'Premium',
+                    style: TextStyle(
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                    ),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'BUSINESS',
+                  child: Text(
+                    'Business',
+                    style: TextStyle(
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                    ),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'FIRST',
+                  child: Text(
+                    'First',
+                    style: TextStyle(
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                    ),
+                  ),
+                ),
               ],
               onChanged: (value) {
                 if (value != null) {

@@ -96,11 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Where to next? ✈️',
             style: TextStyle(
               fontSize: 16,
-              color: AppColors.darkGrey,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.9)
+                  : AppColors.darkGrey,
             ),
           ),
         ],
@@ -214,14 +216,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
             'Popular Destinations',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkGrey,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.95)
+                  : AppColors.darkGrey,
             ),
           ),
         ),
@@ -322,127 +326,129 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // settings section
   Widget _buildSettings() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Settings',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkGrey,
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(
+              'Settings',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
+              ),
             ),
           ),
           const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.mediumGrey.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // currency selector
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.attach_money,
-                      color: AppColors.primaryOrange,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Currency',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.darkGrey,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // currency selector
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.attach_money,
+                        color: AppColors.primaryOrange,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Currency',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGrey.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.lightGrey),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedCurrency,
-                          borderRadius: BorderRadius.circular(12),
-                          elevation: 8,
-                          dropdownColor: AppColors.white,
-                          items: CurrencyService.supportedCurrencies
-                              .map((currency) => DropdownMenuItem(
-                                    value: currency,
-                                    child: Text(
-                                      currency,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : AppColors.lightGrey.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : AppColors.lightGrey,
+                          ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedCurrency,
+                            borderRadius: BorderRadius.circular(12),
+                            elevation: 8,
+                            dropdownColor: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+                            items: CurrencyService.supportedCurrencies
+                                .map((currency) => DropdownMenuItem(
+                                      value: currency,
+                                      child: Text(
+                                        currency,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                                        ),
                                       ),
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              _saveCurrency(value);
-                            }
-                          },
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                _saveCurrency(value);
+                              }
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const Divider(height: 1),
-                const SizedBox(height: 12),
-                // dark mode toggle
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.dark_mode,
-                      color: AppColors.primaryOrange,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Dark Mode',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.darkGrey,
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  // dark mode toggle
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.dark_mode,
+                        color: AppColors.primaryOrange,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Dark Mode',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.darkGrey,
+                          ),
                         ),
                       ),
-                    ),
-                    // Dark Mode Switch using ThemeProvider
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, child) {
-                        return Switch(
-                          value: themeProvider.isDarkMode,
-                          activeThumbColor: AppColors.primaryOrange,
-                          onChanged: (value) {
-                            themeProvider.setTheme(value);
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                      // Dark Mode Switch using ThemeProvider
+                      Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, child) {
+                          return Switch(
+                            value: themeProvider.isDarkMode,
+                            activeThumbColor: AppColors.primaryOrange,
+                            onChanged: (value) {
+                              themeProvider.setTheme(value);
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
