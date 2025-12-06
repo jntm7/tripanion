@@ -1,8 +1,6 @@
 # TravelMate
-TravelMate is a comprehensive travel companion app for aggregating live flight and hotel deals. By integrating third-party APIs, the app provides a semaless travel planning experience, allowing users to store search results as favourites for bookmarking.
 
-DMIT 2504 Mobile Application Development
-Jonathan Tam
+TravelMate is a comprehensive travel companion app for aggregating live flight and hotel deals. By integrating third-party APIs, the app provides a semaless travel planning experience, allowing users to store search results as favourites for bookmarking.
 
 ## Tech Stack
 - **Framework**: Flutter
@@ -30,11 +28,11 @@ Jonathan Tam
 
 #### Intuitive Interface
 - **Light/Dark Theme** - persistent, clean layout optimized for clarity and ease-of-use.
+- **Bookmarks** - save and review a personalized list of flight and hotel results, with edit/delete functionality
 
 #### Account Management
 - **Authentication** - user signup is required for app usage
 - **Account Settings** - users can change their password, logout, and delete their account from within the app.
-
 
 #### Technical Features
 - **Flight API**: AmadeusAPI (https://developers.amadeus.com/)
