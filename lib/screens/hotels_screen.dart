@@ -11,7 +11,9 @@ import 'hotel_results_screen.dart';
 // we use StatefulWidget because we need to manage form state and user inputs
 // for the autocomplete, we reuse the Airport model which already has the city and country fields
 class HotelsScreen extends StatefulWidget {
-  const HotelsScreen({super.key});
+  final String? prefilledCity; // Added prefilledCity parameter
+
+  const HotelsScreen({super.key, this.prefilledCity});
 
   @override
   State<HotelsScreen> createState() => _HotelsScreenState();
@@ -41,6 +43,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.prefilledCity != null) {
+      _locationController.text = widget.prefilledCity!; // Pre-fill city field
+    }
     _hotelService = HotelService(apiKey: ApiConfig.liteApiKey);
     _loadCities();
   }
@@ -224,7 +229,8 @@ class _HotelsScreenState extends State<HotelsScreen> {
           },
           displayStringForOption: (Airport city) => '${city.city}, ${city.country}',
           fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-            _locationController.text = controller.text;
+            // sync the controller with the location controller
+            controller.text = _locationController.text;
             return TextFormField(
               controller: controller,
               focusNode: focusNode,

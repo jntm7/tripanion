@@ -269,9 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Search hotels in $name')),
-        );
+        
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
