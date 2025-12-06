@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 import '../theme/app_theme.dart';
+import '../models/airport.dart';
+import '../services/hotel_service.dart';
+import '../config/api_config.dart';
+import 'hotel_results_screen.dart';
 
+// HotelsScreen provides a form for searching hotels with parameters
+// we use StatefulWidget because we need to manage form state and user inputs
+// for the autocomplete, we reuse the Airport model which already has the city and country fields
 class HotelsScreen extends StatefulWidget {
   const HotelsScreen({super.key});
 
@@ -18,7 +27,39 @@ class _HotelsScreenState extends State<HotelsScreen> {
   int _rooms = 1;
   int _adults = 2;
   int _children = 0;
-  final bool _isSearching = false;
+  bool _isSearching = false;
+
+  // hotel service
+  late final HotelService _hotelService;
+
+  // city data for autocomplete using airports data
+  List<Airport> _cities = [];
+  // loading state of city data, again not sure why it's flagged as unused
+  bool _isLoadingCities = true;
+  Airport? _selectedCity;
+
+  @override
+  void initState() {
+    super.initState();
+    _hotelService = HotelService(apiKey: ApiConfig.liteApiKey);
+    _loadCities();
+  }
+
+  // load cities from airports JSON
+  Future<void> _loadCities() async {
+    try {
+      final String response = await rootBundle.loadString('assets/data/airports.json');
+      final List<dynamic> data = json.decode(response);
+      setState(() {
+        _cities = data.map((json) => Airport.fromJson(json)).toList();
+        _isLoadingCities = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingCities = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -60,12 +101,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            _buildTextField(
-              controller: _locationController,
-              label: 'Destination',
-              hint: 'City or Hotel Name',
-              icon: Icons.location_on,
-            ),
+            _buildCityAutocomplete(),
 
             const SizedBox(height: 16),
 
@@ -158,20 +194,15 @@ class _HotelsScreenState extends State<HotelsScreen> {
     );
   }
 
-  // text field
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-  }) {
+  // city autocomplete field
+  Widget _buildCityAutocomplete() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          'Destination',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -179,17 +210,72 @@ class _HotelsScreenState extends State<HotelsScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, color: AppColors.primaryOrange),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'City or Hotel Name is required';
+        Autocomplete<Airport>(
+          optionsBuilder: (TextEditingValue textEditingValue) {
+            if (textEditingValue.text.isEmpty) {
+              return const Iterable<Airport>.empty();
             }
-            return null;
+            return _cities.where((Airport city) {
+              final searchLower = textEditingValue.text.toLowerCase();
+              return city.city.toLowerCase().contains(searchLower) ||
+                     city.name.toLowerCase().contains(searchLower) ||
+                     city.iataCode.toLowerCase().contains(searchLower);
+            }).take(5);
+          },
+          displayStringForOption: (Airport city) => '${city.city}, ${city.country}',
+          fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+            _locationController.text = controller.text;
+            return TextFormField(
+              controller: controller,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                hintText: 'Enter city name',
+                prefixIcon: const Icon(Icons.location_on, color: AppColors.primaryOrange),
+              ),
+              validator: (value) {
+                if (_selectedCity == null) {
+                  return 'Please select a city from the dropdown';
+                }
+                return null;
+              },
+              onEditingComplete: onEditingComplete,
+            );
+          },
+          optionsViewBuilder: (context, onSelected, options) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  width: MediaQuery.of(context).size.width - 64,
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    itemBuilder: (context, index) {
+                      final city = options.elementAt(index);
+                      return ListTile(
+                        leading: const Icon(Icons.location_city, color: AppColors.primaryOrange),
+                        title: Text(
+                          city.city,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text('${city.country} (${city.iataCode})'),
+                        onTap: () => onSelected(city),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+          onSelected: (Airport city) {
+            setState(() {
+              _selectedCity = city;
+              _locationController.text = '${city.city}, ${city.country}';
+            });
           },
         ),
       ],
@@ -351,7 +437,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
   }
 
   // search handler
-  void _handleSearch() {
+  Future<void> _handleSearch() async {
     if (_formKey.currentState!.validate()) {
       if (_checkinDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -373,12 +459,50 @@ class _HotelsScreenState extends State<HotelsScreen> {
         return;
       }
 
-      // TODO: navigate to hotel results screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Hotel search will be implemented with liteAPI'),
-        ),
-      );
+      setState(() => _isSearching = true);
+
+      try {
+        // Search hotels using liteAPI
+        final hotels = await _hotelService.searchHotels(
+          cityName: _selectedCity!.city,
+          countryCode: _selectedCity!.country,
+          checkin: _checkinDate!,
+          checkout: _checkoutDate!,
+          adults: _adults,
+          rooms: _rooms,
+          children: _children,
+        );
+
+        if (mounted) {
+          setState(() => _isSearching = false);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HotelResultsScreen(
+                city: _selectedCity!.city,
+                country: _selectedCity!.country,
+                checkinDate: _checkinDate!,
+                checkoutDate: _checkoutDate!,
+                rooms: _rooms,
+                adults: _adults,
+                children: _children,
+                hotels: hotels,
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isSearching = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to search hotels: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
     }
   }
 }
