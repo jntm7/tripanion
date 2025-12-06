@@ -83,26 +83,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildWelcomeSection(String userName) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome, $userName!',
+            'TravelMate',
             style: const TextStyle(
-              fontSize: 28,
+              fontSize: 48,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryOrange,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Where to next? ✈️',
+            'Welcome back, $userName!\nReady for your next adventure?',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 20,
               color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.9)
-                  : AppColors.darkGrey,
+            ? Colors.white.withValues(alpha: 0.9)
+            : AppColors.darkGrey,
             ),
           ),
         ],
@@ -202,7 +202,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // popular destinations carousel (for hotels)
+  // popular destinations carousel
+  // TODO: connect destinations to real hotel search
   Widget _buildPopularDestinations(BuildContext context) {
     final destinations = [
       {'name': 'Tokyo', 'country': 'Japan', 'image': 'tokyo.jpg'},
