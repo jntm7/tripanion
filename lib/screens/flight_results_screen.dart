@@ -218,9 +218,7 @@ class _FlightResultsScreenState extends State<FlightResultsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('View details for flight ${flight.id}')),
-          );
+          // Flight details will be implemented later
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
