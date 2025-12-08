@@ -337,7 +337,7 @@ class _HotelResultsScreenState extends State<HotelResultsScreen> {
                         ),
                       ),
                       Text(
-                        '$_selectedCurrency per night',
+                        '$nights Nights ($_selectedCurrency)',
                         style: TextStyle(
                           fontSize: 10,
                           color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.mediumGrey,
