@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../theme/app_theme.dart';
 import '../models/airport.dart';
@@ -40,7 +41,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
   bool _isLoadingCities = true;
   Airport? _selectedCity;
 
-  @override
+@override
   void initState() {
     super.initState();
     if (widget.prefilledCity != null) {
@@ -48,6 +49,28 @@ class _HotelsScreenState extends State<HotelsScreen> {
     }
     _hotelService = HotelService(apiKey: ApiConfig.liteApiKey);
     _loadCities();
+    
+    // If no prefilled city from widget, check shared preferences
+    if (widget.prefilledCity == null) {
+      _loadPrefilledDestination();
+    }
+  }
+
+  // Load prefilled destination from shared preferences
+  Future<void> _loadPrefilledDestination() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedDestination = prefs.getString('prefilled_destination');
+    if (storedDestination != null && storedDestination.isNotEmpty) {
+      // Clear the stored destination
+      await prefs.remove('prefilled_destination');
+      
+      // Set the destination in the controller
+      if (mounted) {
+        setState(() {
+          _locationController.text = storedDestination;
+        });
+      }
+    }
   }
 
   // load cities from airports JSON
@@ -215,75 +238,92 @@ class _HotelsScreenState extends State<HotelsScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        Autocomplete<Airport>(
-          optionsBuilder: (TextEditingValue textEditingValue) {
-            if (textEditingValue.text.isEmpty) {
-              return const Iterable<Airport>.empty();
-            }
-            return _cities.where((Airport city) {
-              final searchLower = textEditingValue.text.toLowerCase();
-              return city.city.toLowerCase().contains(searchLower) ||
-                     city.name.toLowerCase().contains(searchLower) ||
-                     city.iataCode.toLowerCase().contains(searchLower);
-            }).take(5);
-          },
-          displayStringForOption: (Airport city) => '${city.city}, ${city.country}',
-          fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-            // sync the controller with the location controller
-            controller.text = _locationController.text;
-            return TextFormField(
-              controller: controller,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                hintText: 'Enter city name',
-                prefixIcon: const Icon(Icons.location_on, color: AppColors.primaryOrange),
-              ),
-              validator: (value) {
-                if (_selectedCity == null) {
-                  return 'Please select a city from the dropdown';
-                }
-                return null;
-              },
-              onEditingComplete: onEditingComplete,
-            );
-          },
-          optionsViewBuilder: (context, onSelected, options) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 200),
-                  width: MediaQuery.of(context).size.width - 64,
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      final city = options.elementAt(index);
-                      return ListTile(
-                        leading: const Icon(Icons.location_city, color: AppColors.primaryOrange),
-                        title: Text(
-                          city.city,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text('${city.country} (${city.iataCode})'),
-                        onTap: () => onSelected(city),
-                      );
-                    },
-                  ),
+
+        // Use the loading flag to show a spinner while city data is loading.
+        if (_isLoadingCities)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primaryOrange,
                 ),
               ),
-            );
-          },
-          onSelected: (Airport city) {
-            setState(() {
-              _selectedCity = city;
-              _locationController.text = '${city.city}, ${city.country}';
-            });
-          },
-        ),
+            ),
+          )
+        else
+          Autocomplete<Airport>(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return const Iterable<Airport>.empty();
+              }
+              return _cities.where((Airport city) {
+                final searchLower = textEditingValue.text.toLowerCase();
+                return city.city.toLowerCase().contains(searchLower) ||
+                       city.name.toLowerCase().contains(searchLower) ||
+                       city.iataCode.toLowerCase().contains(searchLower);
+              }).take(5);
+            },
+            displayStringForOption: (Airport city) => '${city.city}, ${city.country}',
+            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+              // sync the controller with the location controller
+              controller.text = _locationController.text;
+              return TextFormField(
+                controller: controller,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  hintText: 'Enter city name',
+                  prefixIcon: const Icon(Icons.location_on, color: AppColors.primaryOrange),
+                ),
+                validator: (value) {
+                  if (_selectedCity == null) {
+                    return 'Please select a city from the dropdown';
+                  }
+                  return null;
+                },
+                onEditingComplete: onEditingComplete,
+              );
+            },
+            optionsViewBuilder: (context, onSelected, options) {
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    width: MediaQuery.of(context).size.width - 64,
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final city = options.elementAt(index);
+                        return ListTile(
+                          leading: const Icon(Icons.location_city, color: AppColors.primaryOrange),
+                          title: Text(
+                            city.city,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text('${city.country} (${city.iataCode})'),
+                          onTap: () => onSelected(city),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+            onSelected: (Airport city) {
+              setState(() {
+                _selectedCity = city;
+                _locationController.text = '${city.city}, ${city.country}';
+              });
+            },
+          ),
       ],
     );
   }

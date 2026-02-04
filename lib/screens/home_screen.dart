@@ -260,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // destination card thumbnails
+// destination card thumbnails
   Widget _buildDestinationCard({
     required BuildContext context,
     required String name,
@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return InkWell(
       onTap: () {
-        
+        _showSearchOptions(context, name, country);
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -326,6 +326,135 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // show search options when thumbnail is clicked
+  void _showSearchOptions(BuildContext context, String cityName, String country) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF2C2C2C) : AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Search for $cityName',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white.withValues(alpha: 0.95) : AppColors.darkGrey,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'What would you like to search for?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? Colors.white.withValues(alpha: 0.8) : AppColors.mediumGrey,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildSearchOptionButton(
+                      context: context,
+                      title: 'Flights',
+                      icon: Icons.flight_takeoff,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _navigateToFlightSearch(context, '$cityName, $country');
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildSearchOptionButton(
+                      context: context,
+                      title: 'Hotels',
+                      icon: Icons.hotel,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _navigateToHotelSearch(context, '$cityName, $country');
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // navigate to flight search with prefilled destination
+  void _navigateToFlightSearch(BuildContext context, String destination) {
+    // Store the destination for use in flights screen
+    _storePrefilledDestination(destination);
+    // Navigate to flights tab
+    widget.onNavigateToTab?.call(0);
+  }
+
+  // navigate to hotel search with prefilled destination
+  void _navigateToHotelSearch(BuildContext context, String destination) {
+    // Store the destination for use in hotels screen
+    _storePrefilledDestination(destination);
+    // Navigate to hotels tab
+    widget.onNavigateToTab?.call(1);
+  }
+
+  // store prefilled destination using shared preferences
+  Future<void> _storePrefilledDestination(String destination) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('prefilled_destination', destination);
+  }
+
+  // search option button for dialog
+  Widget _buildSearchOptionButton({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        backgroundColor: AppColors.primaryOrange,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 0,
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 32,
+            color: AppColors.white,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.white,
+            ),
+          ),
+        ],
       ),
     );
   }

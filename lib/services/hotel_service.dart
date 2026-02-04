@@ -45,54 +45,6 @@ class HotelService {
     }
   }
 
-  // Get city ID from city name
-  Future<String?> _getCityId(String cityName, String countryCode) async {
-    try {
-      //print('Searching for city: "$cityName" in country: "$countryCode"'); // Debug
-      final url = Uri.parse('$baseUrl/data/city?countryCode=$countryCode');
-      //print('City request: GET $url'); // Debug
-
-      final response = await http.get(
-        url,
-        headers: {
-          'X-API-Key': apiKey,
-          'Content-Type': 'application/json',
-        },
-      );
-
-      //print('City response status: ${response.statusCode}'); // Debug
-      //print('City response body: ${response.body}'); // Debug
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['data'] != null && data['data'] is List) {
-        final cities = data['data'] as List;
-        //print('Found ${cities.length} cities');
-
-        String normalize(String s) {
-          return s.toLowerCase().trim();
-        }
-
-        final userCity = normalize(cityName);
-
-        for (var city in cities) {
-          final apiCity = normalize(city['city'] ?? '');
-
-          if (apiCity == userCity ||
-              apiCity.contains(userCity) ||
-              apiCity.startsWith(userCity)) {
-            //print('Matched city ID: ${city['id']}');
-            return city['id'].toString();
-          }
-        }
-      }
-    }
-    } catch (e) {
-      //print('Error getting city ID: $e');
-      return null;
-    }
-  }
-
   // Search hotels by city name and country code
   Future<Map<String, Map<String, dynamic>>> _searchHotelsByCity(String cityName, String countryCode) async {
     try {

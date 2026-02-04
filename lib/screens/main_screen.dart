@@ -15,11 +15,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 2;
+  String? _prefilledDestination;
 
   List<Widget> get _screens => [
-    const FlightsScreen(),
-    const HotelsScreen(),
-    HomeScreen(onNavigateToTab: _onItemTapped),
+    FlightsScreen(prefilledDestination: _prefilledDestination),
+    HotelsScreen(prefilledCity: _prefilledDestination),
+    HomeScreen(
+      onNavigateToTab: _onItemTapped,
+    ),
     const SavedItemsScreen(),
     const AccountScreen(),
   ];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../theme/app_theme.dart';
 import '../config/api_config.dart';
@@ -11,7 +12,9 @@ import 'flight_results_screen.dart';
 // we use stateful widget here because the screen needs to manage form state
 // the screen also needs to load airport data asynchronously
 class FlightsScreen extends StatefulWidget {
-  const FlightsScreen({super.key});
+  final String? prefilledDestination;
+  
+  const FlightsScreen({super.key, this.prefilledDestination});
 
   @override
   State<FlightsScreen> createState() => _FlightsScreenState();
@@ -38,7 +41,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
   Airport? _selectedOrigin;
   Airport? _selectedDestination;
 
-  @override
+@override
   void initState() {
     super.initState();
     _flightService = FlightService(
@@ -46,9 +49,38 @@ class _FlightsScreenState extends State<FlightsScreen> {
       apiSecret: ApiConfig.amadeusApiSecret,
     );
     _loadAirports();
+    
+    // Use prefilled destination if available
+    if (widget.prefilledDestination != null) {
+      _destinationController.text = widget.prefilledDestination!;
+      // Try to find and select matching airport after airports are loaded
+      Future.delayed(Duration.zero, () {
+        _findAndSelectAirport(widget.prefilledDestination!);
+      });
+    } else {
+      // Check for stored prefilled destination
+      _loadPrefilledDestination();
+    }
   }
 
-  // load airports from JSON
+  // Load prefilled destination from shared preferences
+  Future<void> _loadPrefilledDestination() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedDestination = prefs.getString('prefilled_destination');
+    if (storedDestination != null && storedDestination.isNotEmpty) {
+      // Clear the stored destination
+      await prefs.remove('prefilled_destination');
+      
+      // Try to find and select matching airport
+      if (mounted) {
+        Future.delayed(Duration.zero, () {
+          _findAndSelectAirport(storedDestination);
+        });
+      }
+    }
+  }
+
+// load airports from JSON
   Future<void> _loadAirports() async {
     try {
       final String response = await rootBundle.loadString('assets/data/airports.json');
@@ -63,6 +95,42 @@ class _FlightsScreenState extends State<FlightsScreen> {
       setState(() {
         _isLoadingAirports = false;
       });
+    }
+  }
+
+  // find and select airport based on prefilled destination
+  Future<void> _findAndSelectAirport(String destination) async {
+    // Wait for airports to load
+    while (_isLoadingAirports) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    
+    // Extract city name from destination (e.g., "Tokyo, Japan" -> "Tokyo")
+    String cityName = destination.split(',').first.trim();
+    
+    // Try to find matching airport
+    for (final airport in _airports) {
+      // Check for exact matches first
+      if (airport.city.toLowerCase() == cityName.toLowerCase() ||
+          airport.name.toLowerCase() == cityName.toLowerCase() ||
+          airport.iataCode.toLowerCase() == cityName.toLowerCase()) {
+        setState(() {
+          _selectedDestination = airport;
+        });
+        return;
+      }
+    }
+    
+    // If no exact match, try partial matches
+    for (final airport in _airports) {
+      if (airport.city.toLowerCase().contains(cityName.toLowerCase()) ||
+          airport.name.toLowerCase().contains(cityName.toLowerCase()) ||
+          airport.municipality.toLowerCase().contains(cityName.toLowerCase())) {
+        setState(() {
+          _selectedDestination = airport;
+        });
+        return;
+      }
     }
   }
 
@@ -298,27 +366,32 @@ class _FlightsScreenState extends State<FlightsScreen> {
           onSelected: (Airport airport) {
             onSelected(airport);
           },
-          fieldViewBuilder: (
-            BuildContext context,
-            TextEditingController textEditingController,
-            FocusNode focusNode,
-            VoidCallback onFieldSubmitted,
-          ) {
-            return TextFormField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                hintText: hint,
-                prefixIcon: Icon(icon, color: AppColors.primaryOrange),
-              ),
-              validator: (value) {
-                if (selectedAirport == null) {
-                  return '$label is required';
-                }
-                return null;
-              },
-            );
-          },
+fieldViewBuilder: (
+              BuildContext context,
+              TextEditingController textEditingController,
+              FocusNode focusNode,
+              VoidCallback onFieldSubmitted,
+            ) {
+              // If we have a selected destination, initialize the text field with its display name
+              if (selectedAirport != null && textEditingController.text.isEmpty) {
+                textEditingController.text = selectedAirport.displayName;
+              }
+              
+              return TextFormField(
+                controller: textEditingController,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  hintText: hint,
+                  prefixIcon: Icon(icon, color: AppColors.primaryOrange),
+                ),
+                validator: (value) {
+                  if (selectedAirport == null) {
+                    return '$label is required';
+                  }
+                  return null;
+                },
+              );
+            },
           optionsViewBuilder: (
             BuildContext context,
             AutocompleteOnSelected<Airport> onSelected,
